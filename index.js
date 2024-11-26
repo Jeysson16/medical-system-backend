@@ -1,3 +1,5 @@
+require("dotenv").config(); // Carga variables de entorno desde .env
+
 const express = require("express");
 const bodyParser = require("body-parser");
 const path = require("path"); // Importar path para manejar rutas
@@ -27,5 +29,8 @@ app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// Exportar la aplicación para Vercel
-module.exports = app;
+const PORT = 3000;
+app.listen(PORT, function (err) {
+    if (err) console.log("Error in server setup");
+    console.log("Server listening on Port", PORT);
+});
