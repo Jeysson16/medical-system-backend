@@ -2,7 +2,7 @@ const admin = require("firebase-admin");
 
 try {
     console.log("Initializing Firebase...");
-    const firebaseConfig = {
+    const serviceAccount = {
         apiKey: "AIzaSyD-uzdVngolTs-quZgL_kY-Mb4uoyFBtOA",
         authDomain: "capsule-852e9.firebaseapp.com",
         projectId: "capsule-852e9",
