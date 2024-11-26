@@ -1,5 +1,7 @@
 const admin = require("firebase-admin");
-const serviceAccount = require("../firebase-adminsdk.json");
+
+// Parsear las credenciales desde una variable de entorno
+const serviceAccount = JSON.parse(process.env.FIREBASE_ADMIN_SDK);
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
