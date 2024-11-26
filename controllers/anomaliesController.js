@@ -3,29 +3,47 @@ const Anomaly = require("../models/anomaly");
 const ResponseModel = require("../models/responseModel");
 
 // Controlador para agregar una nueva anomalía
-const addAnomaly = async (req, res) => {
-    const { capsuleId, description, severity, time, location } = req.body;
-
+const addAnomaliesToCapsule = async (capsuleId, detectedAnomalies, minutes, seconds, frameNumber, location) => {
     try {
-        const anomalyRef = db.collection("anomalies").doc(); // Creamos un documento en la colección de anomalías
-        const newAnomaly = new Anomaly(
-            anomalyRef.id,
-            capsuleId,
-            description,
-            severity,
-            time,
-            location,
-            new Date() // Fecha y hora actuales de la detección
-        );
+        // Responder inmediatamente al cliente
+        setImmediate(async () => {
+            const capsuleRef = db.collection("capsules").doc(capsuleId);
+            const anomalyBatch = db.batch();
 
-        // Guardamos la anomalía en Firestore
-        await anomalyRef.set(newAnomaly.toObject());
+            const hours = Math.floor(minutes / 60);
+            minutes = minutes % 60;
 
-        const response = new ResponseModel(true, [], [], 0, newAnomaly);
-        return res.status(201).json(response); // 201 - Creado
+            // Procesar cada anomalía detectada
+            detectedAnomalies.forEach(anomaly => {
+                const anomalyRef = capsuleRef.collection("anomalies").doc();
+
+                const newAnomaly = new Anomaly(
+                    anomalyRef.id,
+                    capsuleId,
+                    anomaly.description,
+                    anomaly.confidence,
+                    {
+                        hours: hours,
+                        minutes: minutes,
+                        seconds: seconds,
+                        frames: frameNumber
+                    },
+                    location,
+                    new Date()
+                );
+
+                // Agregar la anomalía al batch
+                anomalyBatch.set(anomalyRef, newAnomaly.toObject());
+            });
+
+            // Ejecutar todas las operaciones en el batch
+            await anomalyBatch.commit();
+        });
+
+        // Respuesta inmediata
+        return new ResponseModel(true, [], null, 0, null);
     } catch (error) {
-        const response = new ResponseModel(false, [error.message], [], 500, null);
-        return res.status(500).json(response); // 500 - Error interno
+        return new ResponseModel(false, [error], null, 0, null);
     }
 };
 
@@ -47,6 +65,6 @@ const getAnomalies = async (req, res) => {
 };
 
 module.exports = {
-    addAnomaly,
+    addAnomaliesToCapsule,
     getAnomalies
 };
