@@ -1,12 +1,13 @@
 {
     "name": "capsule-endoscopy-backend",
     "version": "1.0.0",
-    "main": "server.js",
+    "main": "index.js",
     "scripts": {
+        "start": "node index.js",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "keywords": [],
-    "author": "",
+    "author": "Jeysson Sanchez",
     "license": "ISC",
     "description": "",
     "dependencies": {
