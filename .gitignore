@@ -3,6 +3,3 @@
 
 # Environment variables
 .env
-
-# Firebase service account key
-/firebase-adminsdk.json
