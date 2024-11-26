@@ -3,6 +3,6 @@ const router = express.Router();
 const anomaliesController = require("../controllers/anomaliesController");
 
 // Ruta para obtener todas las anomalías
-router.get("/getAll", anomaliesController.getAnomalies);
+router.get("/:capsuleId/getAll", anomaliesController.getAnomalies);
 
 module.exports = router;

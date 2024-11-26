@@ -120,21 +120,42 @@ const getCapsuleById = async (req, res) => {
     const { capsuleId } = req.params;
 
     try {
+        // Obtener la cápsula por ID
         const capsuleDoc = await db.collection("capsules").doc(capsuleId).get();
 
         if (!capsuleDoc.exists) {
             const response = new ResponseModel(false, ["Cápsula no encontrada"], [], 404, null);
-            return res.status(404).json(response);
+            return res.status(404).json(response); // 404 - Not Found
         }
 
         const data = capsuleDoc.data();
-        const capsule = new Capsule(capsuleDoc.id, data.type, data.creationDate.toDate(), data.status);
 
-        const response = new ResponseModel(true, [], capsule.toObject(), 1, null);
-        return res.status(200).json(response);
+        // Validar propiedades críticas
+        const status = data.status || "Estado desconocido"; // Valor predeterminado
+
+        // Obtener imágenes desde la subcolección
+        const imagesSnapshot = await db.collection("capsules").doc(capsuleId).collection("images").get();
+
+        // Inicializar arreglo de imágenes
+        let images = [];
+        if (!imagesSnapshot.empty) {
+            images = imagesSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+        } else {
+            console.log(`No images found for capsule ${capsuleId}`);
+        }
+
+        // Crear instancia del modelo de cápsula
+        const capsule = new Capsule(capsuleDoc.id, status, images);
+
+        const response = new ResponseModel(true, [], null, 1, capsule.toObject());
+        return res.status(200).json(response); // 200 - OK
     } catch (error) {
+        console.error("Error retrieving capsule:", error);
         const response = new ResponseModel(false, [error.message], [], 500, null);
-        return res.status(500).json(response);
+        return res.status(500).json(response); // 500 - Error interno
     }
 };
 

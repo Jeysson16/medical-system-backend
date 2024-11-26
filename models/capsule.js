@@ -1,5 +1,5 @@
 class Capsule {
-    constructor(id, type, creationDate, status, data) {
+    constructor(id, status, images) {
         this.id = id; // ID único de la cápsula
         this.status = status || "active"; // Estado de la cápsula (e.g., "active", "inactive")
         this.images = images; // Arreglo de imágenes con sus URLs y tiempos

@@ -50,7 +50,22 @@ const addAnomaliesToCapsule = async (capsuleId, detectedAnomalies, minutes, seco
 // Controlador para obtener todas las anomalías
 const getAnomalies = async (req, res) => {
     try {
-        const anomaliesSnapshot = await db.collection("anomalies").get();
+        // Obtener el ID de la cápsula desde los parámetros de la solicitud
+        const { capsuleId } = req.params;
+
+        if (!capsuleId) {
+            const response = new ResponseModel(false, ["Capsule ID is required"], [], 400, null);
+            return res.status(400).json(response); // 400 - Bad Request
+        }
+
+        // Referencia a las anomalías de la cápsula específica
+        const anomaliesSnapshot = await db.collection("capsules").doc(capsuleId).collection("anomalies").get();
+
+        if (anomaliesSnapshot.empty) {
+            const response = new ResponseModel(true, [], [], 0, null);
+            return res.status(200).json(response); // 200 - OK, pero sin resultados
+        }
+
         const anomalies = anomaliesSnapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data()
